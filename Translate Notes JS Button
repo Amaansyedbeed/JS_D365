@@ -1,0 +1,100 @@
+function translateAllNotesForRecordNEW(primaryControl) {
+    var formContext = primaryControl;
+    var parentId = formContext.data.entity.getId().replace(/[{}]/g, "");
+    var serverURL = Xrm.Utility.getGlobalContext().getClientUrl();
+
+    // --- CONFIRMATION DIALOG ---
+    var confirmStrings = {
+        title: "Translate All Notes",
+        text: "Do you want to translate notes?",
+        confirmButtonLabel: "Translate",
+        cancelButtonLabel: "Cancel"
+    };
+
+    var confirmOptions = { height: 200, width: 450 };
+
+    Xrm.Navigation.openConfirmDialog(confirmStrings, confirmOptions).then(
+        function (result) {
+            if (!result.confirmed) {
+                console.log("Translation cancelled by user.");
+                return;
+            }
+
+            // User clicked "Translate" → continue with existing logic
+
+            var query =
+                "?$select=annotationid,notetext,subject" +
+                "&$filter=_objectid_value eq '" + parentId + "'";
+
+            console.log("Query:", query);
+
+            Xrm.WebApi.retrieveMultipleRecords("annotation", query).then(
+                async function success(results) {
+
+                    console.log("Notes retrieved:", results.entities.length);
+
+                    if (!results.entities || results.entities.length === 0) {
+                        Xrm.Utility.alertDialog("No notes found.");
+                        return;
+                    }
+
+                    for (var i = 0; i < results.entities.length; i++) {
+                        var n = results.entities[i];
+
+                        var noteId = n.annotationid;
+                        var subject = n.subject || "";
+                        var body = n.notetext || "";
+                        var inputText = body || subject;
+
+                        if (!inputText.trim()) continue;
+
+                        var payload = {
+                            "InputText": inputText,
+                            "FromLanguage": "ja",
+                            "ToLanguage": "en",
+                            "TargetNoteId": noteId,
+                            "TargetParentId": parentId,
+                            "Subject": subject
+                        };
+
+                        var url = serverURL + "/api/data/v9.2/itl_TranslationNotesAction";
+
+                        await callAction(url, payload);
+                    }
+                     formContext.data.refresh(false);
+                     Xrm.Utility.alertDialog("Notes translation complete.");
+
+                },
+                function (error) {
+                    console.error(error);
+                    Xrm.Utility.alertDialog("Error fetching notes: " + error.message);
+                }
+            );
+
+        },
+        function (error) {
+            console.error("Confirm dialog error:", error);
+        }
+    );
+}
+
+function callAction(url, payload) {
+    return new Promise(function (resolve) {
+        var req = new XMLHttpRequest();
+        req.open("POST", url, true);
+
+        req.setRequestHeader("Accept", "application/json");
+        req.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        req.setRequestHeader("OData-Version", "4.0");
+        req.setRequestHeader("OData-MaxVersion", "4.0");
+
+        req.onreadystatechange = function () {
+            if (req.readyState === 4) {
+                console.log("Action response:", req.status, req.responseText);
+                resolve();
+            }
+        };
+
+        req.send(JSON.stringify(payload));
+    });
+}
