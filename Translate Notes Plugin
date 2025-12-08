@@ -1,0 +1,289 @@
+//Tranlate OOB notes into custom notes table with CRUD action plugin/action
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Text.RegularExpressions;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
+using Newtonsoft.Json.Linq;
+
+namespace MyCompany.Plugins
+{
+    public class TranslateNoteToTranslatedNotePlugin : IPlugin
+    {
+        private static readonly HttpClient _httpClient = new HttpClient();
+
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            var context = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            var tracing = (ITracingService)serviceProvider.GetService(typeof(ITracingService));
+            var factory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            var service = factory.CreateOrganizationService(context.UserId);
+
+            tracing.Trace("=== Translator Plugin Started ===");
+
+            try
+            {
+                // Read inputs
+                string from = GetString(context, "FromLanguage") ?? "ja";
+                string to = GetString(context, "ToLanguage") ?? "en";
+                string targetParentIdStr = GetString(context, "TargetParentId");
+                string targetNoteIdStr = GetString(context, "TargetNoteId"); // optional
+
+                if (string.IsNullOrWhiteSpace(targetParentIdStr))
+                {
+                    tracing.Trace("TargetParentId missing - nothing to do.");
+                    return;
+                }
+
+                Guid parentId;
+                if (!Guid.TryParse(targetParentIdStr, out parentId))
+                {
+                    tracing.Trace("Invalid TargetParentId value: " + targetParentIdStr);
+                    return;
+                }
+
+                // If a specific note GUID passed -> translate that single note, else process all notes for parent
+                if (!string.IsNullOrWhiteSpace(targetNoteIdStr) && Guid.TryParse(targetNoteIdStr, out Guid noteId))
+                {
+                    tracing.Trace($"Processing single annotation: {noteId}");
+                    ProcessSingleAnnotation(service, tracing, parentId, noteId, from, to, context.PrimaryEntityName);
+                }
+                else
+                {
+                    tracing.Trace($"Processing all annotations for parent: {parentId}");
+                    ProcessAllAnnotationsForParent(service, tracing, parentId, from, to, context.PrimaryEntityName);
+                }
+
+                tracing.Trace("=== Translator Plugin Finished ===");
+            }
+            catch (InvalidPluginExecutionException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                tracing.Trace("Unhandled exception: " + ex.ToString());
+                throw new InvalidPluginExecutionException("Note translation failed. See plugin trace.");
+            }
+        }
+
+        private void ProcessSingleAnnotation(IOrganizationService service, ITracingService tracing, Guid parentId, Guid annotationId, string from, string to, string parentEntityLogicalName)
+        {
+            // retrieve the annotation
+            var ann = service.Retrieve("annotation", annotationId, new ColumnSet("subject", "notetext"));
+            if (ann == null)
+            {
+                tracing.Trace("Annotation not found: " + annotationId);
+                return;
+            }
+
+            string subject = ann.Contains("subject") ? ann.GetAttributeValue<string>("subject") : string.Empty;
+            string notetext = ann.Contains("notetext") ? ann.GetAttributeValue<string>("notetext") : string.Empty;
+
+            TranslateAndUpsertTranslatedNote(service, tracing, parentId, annotationId, subject, notetext, from, to, parentEntityLogicalName);
+        }
+
+        private void ProcessAllAnnotationsForParent(IOrganizationService service, ITracingService tracing, Guid parentId, string from, string to, string parentEntityLogicalName)
+        {
+            // Query annotations for parent
+            // Use objectid (lookup) to filter annotations that belong to the parent record
+            var q = new QueryExpression("annotation")
+            {
+                ColumnSet = new ColumnSet("annotationid", "subject", "notetext"),
+                Criteria = new FilterExpression
+                {
+                    Conditions =
+                    {
+                        new ConditionExpression("objectid", ConditionOperator.Equal, parentId)
+                    }
+                }
+            };
+
+            var notes = service.RetrieveMultiple(q).Entities;
+            tracing.Trace("Found annotations: " + notes.Count);
+
+            foreach (var n in notes)
+            {
+                Guid annotationId = n.Id;
+                string subject = n.Contains("subject") ? n.GetAttributeValue<string>("subject") : string.Empty;
+                string notetext = n.Contains("notetext") ? n.GetAttributeValue<string>("notetext") : string.Empty;
+
+                if (string.IsNullOrWhiteSpace(notetext) && string.IsNullOrWhiteSpace(subject))
+                {
+                    tracing.Trace("Skipping empty annotation: " + annotationId);
+                    continue;
+                }
+
+                TranslateAndUpsertTranslatedNote(service, tracing, parentId, annotationId, subject, notetext, from, to, parentEntityLogicalName);
+            }
+        }
+
+        private void TranslateAndUpsertTranslatedNote(IOrganizationService service, ITracingService tracing, Guid parentId, Guid annotationId, string subject, string notetext, string from, string to, string parentEntityLogicalName)
+        {
+            tracing.Trace($"TranslateAndUpsert for annotation {annotationId}");
+
+            // Extract visible text from notetext (strip html)
+            string bodyToTranslate = !string.IsNullOrWhiteSpace(notetext) ? ExtractVisibleText(notetext) : (subject ?? string.Empty);
+
+            if (string.IsNullOrWhiteSpace(bodyToTranslate))
+            {
+                tracing.Trace("No text to translate for annotation " + annotationId);
+                return;
+            }
+
+            // Translate body
+            string translatedBody = TranslateText(bodyToTranslate, from, to, service, tracing);
+            tracing.Trace("Translated body: " + (translatedBody?.Length ?? 0));
+
+            // Translate subject (store in itl_subject)
+            string translatedSubject = !string.IsNullOrWhiteSpace(subject) ? TranslateText(subject, from, to, service, tracing) : string.Empty;
+            tracing.Trace("Translated subject: " + (translatedSubject?.Length ?? 0));
+
+            // 1) Try to find existing translated record by itl_originalnoteid (preferred, stable)
+            Entity existing = FindTranslatedByOriginalNoteId(service, annotationId);
+
+            // 2) If not found, fallback to find by parent + subject (legacy behavior)
+            if (existing == null)
+            {
+                existing = FindTranslatedByParentAndSubject(service, parentId, subject);
+            }
+
+            if (existing != null)
+            {
+                tracing.Trace("Existing translated note found (id=" + existing.Id + "), updating...");
+
+                var update = new Entity("itl_translatednote", existing.Id);
+
+                // keep original itl_name (original subject) if existing; but update it if you want
+                // we keep it unchanged to honor your request
+                // update translated subject + translated text
+                update["itl_subject"] = translatedSubject;
+                update["itl_translatedtext"] = translatedBody;
+
+                // ensure original annotation id is stored
+                update["itl_originalnoteid"] = annotationId.ToString();
+
+                service.Update(update);
+                tracing.Trace("Updated translated note: " + existing.Id);
+            }
+            else
+            {
+                tracing.Trace("No existing translated note found, creating new...");
+
+                var created = new Entity("itl_translatednote");
+                created["itl_name"] = subject; // original subject preserved
+                created["itl_subject"] = translatedSubject; // translated subject
+                created["itl_translatedtext"] = translatedBody;
+                created["itl_contact"] = new EntityReference(parentEntityLogicalName, parentId);
+                created["itl_originalnoteid"] = annotationId.ToString(); // store original annotation id as string
+
+                var createdId = service.Create(created);
+                tracing.Trace("Created new translated note: " + createdId);
+            }
+        }
+
+        // Primary lookup: find translated note by original annotation GUID stored in itl_originalnoteid
+        private Entity FindTranslatedByOriginalNoteId(IOrganizationService service, Guid annotationId)
+        {
+            string guidAsString = annotationId.ToString();
+
+            var fetch = $@"
+                        <fetch top='1'>
+                        <entity name='itl_translatednote'>
+                        <attribute name='itl_translatednoteid' />
+                        <filter>
+                        <condition attribute='itl_originalnoteid' operator='eq' value='{guidAsString}' />
+                        </filter>
+                        </entity>
+                        </fetch>";
+
+            var res = service.RetrieveMultiple(new FetchExpression(fetch));
+            return res.Entities.FirstOrDefault();
+        }
+
+        // Fallback: find by parent + name (subject) — legacy fallback only
+        private Entity FindTranslatedByParentAndSubject(IOrganizationService service, Guid parentId, string subject)
+        {
+            var q = new QueryExpression("itl_translatednote")
+            {
+                ColumnSet = new ColumnSet("itl_translatednoteid"),
+                Criteria = new FilterExpression()
+            };
+
+            q.Criteria.AddCondition("itl_contact", ConditionOperator.Equal, parentId);
+
+            if (!string.IsNullOrWhiteSpace(subject))
+            {
+                q.Criteria.AddCondition("itl_name", ConditionOperator.Equal, subject);
+            }
+
+            var results = service.RetrieveMultiple(q);
+            return results.Entities.FirstOrDefault();
+        }
+
+        private string GetString(IPluginExecutionContext ctx, string key)
+        {
+            return ctx.InputParameters.Contains(key) ? ctx.InputParameters[key]?.ToString() : null;
+        }
+
+        private string ExtractVisibleText(string html)
+        {
+            if (string.IsNullOrWhiteSpace(html)) return string.Empty;
+
+            html = Regex.Replace(html, "<script.*?</script>", "", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+            html = Regex.Replace(html, "<style.*?</style>", "", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+            string text = Regex.Replace(html, "<.*?>", " ");
+            text = Regex.Replace(text, @"\s+", " ").Trim();
+
+            return text;
+        }
+
+        private string TranslateText(string text, string from, string to, IOrganizationService service, ITracingService tracing)
+        {
+            string key = GetEnvVar(service, "itl_Translation_Key");
+            string region = GetEnvVar(service, "itl_Translator_region");
+            string endpoint = GetEnvVar(service, "itl_Translator_endpoint") ?? "https://api.cognitive.microsofttranslator.com";
+
+            string url = $"{endpoint}/translate?api-version=3.0&from={Uri.EscapeDataString(from)}&to={Uri.EscapeDataString(to)}&textType=plain";
+
+            var body = new JArray(new JObject { ["Text"] = text }).ToString();
+
+            using (var request = new HttpRequestMessage(HttpMethod.Post, url))
+            {
+                request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+                request.Headers.Add("Ocp-Apim-Subscription-Key", key);
+                if (!string.IsNullOrWhiteSpace(region))
+                    request.Headers.Add("Ocp-Apim-Subscription-Region", region);
+
+                var response = _httpClient.SendAsync(request).Result;
+                var json = response.Content.ReadAsStringAsync().Result;
+
+                var parsed = JArray.Parse(json);
+                return parsed[0]["translations"][0]["text"].ToString();
+            }
+        }
+
+        private string GetEnvVar(IOrganizationService service, string schemaName)
+        {
+            string fetch = $@"
+                        <fetch top='1'>
+                        <entity name='environmentvariablevalue'>
+                        <attribute name='value'/>
+                        <link-entity name='environmentvariabledefinition'
+                        from='environmentvariabledefinitionid'
+                        to='environmentvariabledefinitionid'>
+                        <filter>
+                        <condition attribute='schemaname' operator='eq' value='{schemaName}' />
+                        </filter>
+                        </link-entity>
+                        </entity>
+                        </fetch>";
+
+            var result = service.RetrieveMultiple(new FetchExpression(fetch)).Entities.FirstOrDefault();
+            return result?.GetAttributeValue<string>("value");
+        }
+    }
+}
