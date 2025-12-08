@@ -1,0 +1,1107 @@
+{% include 'ITL Include Common' %}
+<style>
+    .main-user-class p,
+    .other-user-class p {
+        background: #ebf5ff;
+        padding: 13px !important;
+        border-radius: 6px
+    }
+
+    .other-user-class p {
+        background: #f9f8fa;
+        padding: 13px !important;
+        border-radius: 6px
+    }
+
+    .comment-td {
+        background: transparent !important;
+    }
+
+    .second-box-main .comment-tr {
+        width: 100%;
+    }
+
+    .second-box-main .comment-td {
+        width: 75% !important;
+    }
+
+    .comment-chat {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+    .main-user-class {
+        flex-direction: row-reverse;
+    }
+
+    .second-box-main .comment-main {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-end;
+        margin-bottom: 10px;
+    }
+    .order-details-save-btn {
+        margin: 26px 0 -45px 15px !important;
+    }
+
+.add-order-line-btn {
+    /* margin-right:165px !important; */
+}
+
+.create-order-btn:hover {
+    background-color: #31708F !important;
+    color: white !important;}
+    
+</style>
+<style>
+    .main-user-class p,
+    .other-user-class p {
+        background: #ebf5ff;
+        padding: 13px !important;
+        border-radius: 6px
+    }
+
+    .other-user-class p {
+        background: #f9f8fa;
+        padding: 13px !important;
+        border-radius: 6px
+    }
+
+    .comment-td {
+        background: transparent !important;
+    }
+
+    .second-box-main .comment-tr {
+        width: 100%;
+    }
+
+    .second-box-main .comment-td {
+        width: 75% !important;
+    }
+
+    .comment-chat {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+    .main-user-class {
+        flex-direction: row-reverse;
+    }
+
+    .second-box-main .comment-main {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-end;
+        margin-bottom: 10px;
+    }
+
+    .order_up_btn {
+        margin-top: 0 !important;
+    }
+
+    .code-thead {
+        width: 200px
+    }
+    .line-discount-thead {
+        width: 250px;
+    }
+    /*Switch Style */
+    .switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 25px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 50px;
+  height: 26px;
+  width: 52px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+  height: 18px;
+  width: 18px;
+}
+
+.ready-post-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.edit-btn-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+}
+.edit-btn {
+    margin-top: -3px !important;
+    border-radius: 5px !important;
+    
+}
+
+.table-save-btn {
+    position: absolute;
+    top: -54px;
+    right: 180px;
+    height: 39px;
+    font-size: 16px !important;
+    padding: 0px 20px !important;
+}
+.cscc {
+  min-height: 50px;
+    max-height: 50px;
+  padding: 15px 9px;
+  background: #ffffff;
+  border: 1px solid #d4def2;
+  border-radius: 6px;
+  line-height: normal !important;
+  font-size: 20px;
+  line-height: 25px;
+  font-weight: 400;
+  letter-spacing: 0px;
+  color: #000000b3;
+}
+</style>
+<div class="wrapper-body addOrderPG">
+    <div class="top admin-wrapper">
+        <section class="page_section">
+            <div class="page_section section-landing">
+                <div class="container-fluid">
+                    <ul class="breadcrumb">
+                        {% for crumb in page.breadcrumbs -%}
+                        <li>
+                            <a href={{ crumb.url }}>{{ crumb.title }}</a>
+                        </li>
+                        {% endfor -%}
+                        <li class="active">{{ page.title }}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="top addCard">
+                {% include 'ITL Navigation' %}
+                <div class="page_section">
+                    <!-- <div class="layer_up">&nbsp;</div> -->
+                    <div class="container-fluid order-container">
+                        <div class="quotes-table addOrder">
+                            <div class="row">
+                                <div class="col-md-12 add-main-order">
+                                    <form id="update_order">
+                                        <div class="form-row">
+                                            <!-- <div class="page-title-box col-md-6 text-left">
+                                               <h4 class="page-title">Order Detail</h4>
+                                            </div>-->
+                                            <div class="col-md-12 text-right">
+                                                <button type="button" id="post_order" class="btn btn-primary" style="margin-top: 10px;" disabled>Ready To Post<span></span></button>
+                                                <!-- <button type="button" id="back-btn" class="btn btn-info table-btn"
+                                                    data-target='orders'>
+                                                    <i class="fa fa-times-circle-o" aria-hidden="true"></i>
+                                                </button> -->
+                                            </div>
+                                        </div>
+                                        <!--<div class="form-row">
+                                            <div class="form-group col-md-12">
+                                                <p>Order : <b><span id="ord_numb"></span></b></p>
+                                            </div>
+                                        </div>-->
+                                        <div class="form-row external-doc-row">
+                                            <div class="form-group col-md-3">
+                                                <label for="doc_no" class="form-label">External Document No.</label>
+                                                <input type="text" class="form-control update_fields cscc" id="doc_no"
+                                                    placeholder="Ext Document No." autocomplete="off" required>
+                                            </div>
+                                            <!--<div class="form-group col-md-3">
+                                                <label class="form-label" for="location_code">Warehouse</label>
+                                                <select class="form-control update_fields cscc" id="location_code" name="location_code"
+                                                    placeholder="Type to search..." required>
+                                                </select>
+                                            </div>-->
+                                            <div class="form-group col-md-3">
+                                                <label for="deliveryDate" class="form-label">Requested Delivery
+                                                    Date</label>
+                                                    
+                                                <input type="date" class="form-control update_fields cscc" id="deliveryDate"
+                                                    placeholder="Requested Delivery Date" autocomplete="off" >
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                                 <button type="submit" class="cBtn btn btn-primary order_up_btn order-details-save-btn" style="min-height: 46px; max-height: 50px !important; padding-top: 5px !important;margin-top:30px !important;" disabled>Save Changes
+                                                        <span></span>
+                                                    </button>      
+                                                  
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <!-- <div class="col-md-12 ">
+                                    <div class='col-lg-6 ready-post-wrapper'>
+                                        <label>Ready To Post </label>
+                                        <label class="switch"> 
+                                            <input type="checkbox" id="post_order" value="1">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div> -->
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="row p-t-5">
+                            <div class="col-md-12">
+                                <div class="cstTable">
+                                    <div class="table-responsive">
+                                        <table id="order_line_table" class="dt-responsive">
+                                            <thead>
+                                                <tr>
+                                                    <th>Type</th>
+                                                    <th>Item No.</th>
+                                                    <th>Item Name</th>
+                                                    <th>Quantity</th>
+                                                    <th width="50px">Delete</th>
+                                                    <th width="50px">Suggestion</th>                                                    
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tableData">
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row sameHeight">
+                            <div class="col-lg-6 col-md-6">
+                                <!--<div class="alert alert-info">
+                                    <strong>Info!</strong> Comments will be visible to Marinetrans after finalising the order.
+                                </div> -->
+                                <div class="second-box second-box-main cst-second-box">
+                                    <div class="title-top">
+                                        <h2><i class="fa-light fa-comment-dots"></i> Add Comment </h2>
+                                    </div>
+                                    <div id="CommentsTab" class="view-grid">Loading..</div>
+                                    <div class="second-box-inner">
+                                        <form class="comment-form">
+                                            <textarea  id="comment" placeholder="Enter your thoughts..." required></textarea>
+                                                <img src="/send-img.png" class="send-img" onclick="postUserComment()">
+                                            <!-- <div class="comment-div">
+                                                <div class="comment-inner">
+                                                </div>
+                                                <p class="h5">Comments History <button type="button" class="refresh-btn table-btn" onclick="commentAdded()"><i class="fa-solid fa-sync refresh" aria-hidden="true"></i></button></p>
+                                            </div> -->
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="alert alert-success" id="success-msz" role="alert" style="display: none;">
+                                    <p>Document attached successfully.</p>
+                                </div>
+                               {% if AccountType == "Customer" %}
+                                <div id="DocsTab" class="view-grid documents-main cst-documents-box">
+                                    {% include 'ITL Include Documents' %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clear"></div>
+        </section>
+    </div>
+</div>
+<div class="modal fade" id="add_order_line" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-start p-0">
+                <h4 class="modal-title w-100 font-weight-bold p-0">Add Order Lines</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table id="add_order_line_table">
+                    <thead>
+                        <tr>
+                            <th>Item No.</th>
+                            <th>Description</th>
+                            <th>Qty in hand</th>
+                            <th>Qty to be ordered</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableData">
+
+                    </tbody>
+                </table>
+            </div>
+            <!-- <form id="add_line" class="p-0">
+                <div class="alert" role="alert" style="display: none;"></div>
+                <div class="detailItem">
+                    <div class="form-group col-md-12 p-0">
+                        <label class="form-label">Item</label>
+                        <select class="form-control" id="itemId" name="itemId"
+                            placeholder="Type to search..."></select>
+                    </div>
+                    <div class="form-group col-md-12 p-0">
+                        <label class="form-label">Quantity</label>
+                        <input type="number" id="quantity" required min="1" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-center">
+                    <button class="cBtn btn btn-primary" type="submit">Add</button>
+                </div>
+            </form> -->
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="error_message" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-start p-0">
+                <!-- <h4 class="modal-title w-100 font-weight-bold p-0">Please click on save changes</h4> -->
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title w-100 font-weight-bold p-0" id="add_line">Please click on save changes</h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="date_error_message" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-start p-0">
+                <!-- <h4 class="modal-title w-100 font-weight-bold p-0">Please click on save changes</h4> -->
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title w-100 font-weight-bold p-0" id="add_line">Please choose request delivery date</h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="post_error_message" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-start p-0">
+                <!-- <h4 class="modal-title w-100 font-weight-bold p-0">Please click on save changes</h4> -->
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title w-100 font-weight-bold p-0" id="add_line">This order is already posted.</h4>
+            </div>
+        </div>
+    </div>
+</div>
+<style type="text/css">@import url("/js/select2/select2.css");</style>
+<script src="/js/select2/select2.min.js"></script>
+<script src="/js/select2/select2_locale_all.js"></script>
+<script>
+    var td = [];
+    var orderNumber = '';
+    var incDocNo = '';
+    var delOrderId = '';
+    var editOrderParms = '';
+    $(document).ready(function () {
+        $("#location_code").select2();
+        $("#itemId").select2();
+        var autoLoadData = "";
+        td.table = $('#order_line_table').DataTable({
+            dom: 'rBt',
+            scrollX: true,
+            pageLength: 30,
+            processing: true,
+            responsive: true,
+            buttons: [
+                {
+                    text: 'Add Order Lines',
+                    className: 'cBtn btn-primary buttons-html5 add-line-btn add-order-line-btn',
+                    action: function (e, dt, node, config) {
+                        var button_status = $('.order_up_btn').prop('disabled');
+                        var post_status = $('#post_order').prop('disabled');
+                        console.log('Ready to post: '+ post_status, 'save changes: '+ button_status);
+                        if(button_status && post_status){
+                            $('#post_error_message').modal('show');
+                        }else if(button_status && !post_status){
+                            reloadItems();      
+                        }else{
+                            $("#itemId").select2("destroy").select2();
+                            $('#error_message').modal('show');
+                        }
+                            
+                    }
+                },
+            ],
+            oLanguage: {
+                "sEmptyTable": "Loading..."
+            }
+        });
+
+    //     new $.fn.dataTable.Buttons( td.table, {
+    //         buttons: [
+    //             {
+    //                 text: 'Button 2',
+    //                 action: function ( e, dt, node, conf ) {
+    //                     alert( 'Button 2 clicked on' );
+    //                 }
+    //             }
+    //         ]
+    //     } );
+
+    //     td.table.buttons( 1, null ).container().appendTo(
+    //     td.table.table().container()
+    // );
+        var queryOrder = "Portal_SalesOrders?$filter=SystemId  eq {{request.params.oid}}";
+        // var queryInfo = "Portal_{{AccountTypeKeyword}}OrderDetail?$filter=cid eq {{BCCustId}} and oid eq {{request.params.oid}}";
+        var queryInfo = "Portal_{{AccountTypeKeyword}}OrderDetail?$filter=oid eq {{request.params.oid}}";
+        fetchinfo(queryOrder, false, "GETORDER");
+        fetchinfo(queryInfo, false, "GETORDERLINE");
+
+        $('body').on('change', '.update_fields', function(){
+            if(!td.post_status){
+                $(".order_up_btn").prop('disabled', false);
+            }
+                
+            // $(".add-line-btn").prop('disabled', true);
+        })
+
+        $('body').on('submit', '#update_order', function (e) {
+            e.preventDefault();
+            $(".order_up_btn").prop('disabled', true);
+            $(".order_up_btn span").html('<i class="fa-solid fa-spinner fa-spin-pulse"></i>');
+            var doc_no = $("#doc_no").val();
+            var deliveryDate = $("#deliveryDate").val();
+            // var orderDate = $("#orderDate").val();
+            
+            let parms = {};
+            if (doc_no !== '') {
+                parms['External_Document_No'] = doc_no;
+            }
+            if (deliveryDate !== '') {
+                parms['Requested_Delivery_Date'] = deliveryDate;
+            }
+            // if (orderDate !== '') {
+            //     parms['orderDate'] = orderDate;
+            // }
+            if(td.lineCount === 0){
+                parms['Location_Code'] = $("#location_code").val();
+                td.location_code = $("#location_code").val();
+                td.location = td.location_code;
+                // fetchinfo("Portal_ItemAvailability?$filter=LocationCode eq '"+td.location_code+"' and TotalQuantity gt 0");
+                fetchinfo("Portal_ItemAvailability?$filter=cid eq {{BCCustId}}");
+            }
+            // $("#location_code").select2("destroy").select2();
+            editOrderParms = parms;
+            // query = "salesOrders({{request.params.oid}})";
+            query = "UpdateSalesOrderList({{request.params.oid}})";
+            fetchinfo(query, false, "GETETAG");
+        });
+
+        // $('body').on('submit', '#add_line', function (e) {
+        //     e.preventDefault();
+        //     var itemId = $("#itemId").val();
+        //     var quantity = $("#quantity").val();
+        //     
+        //     var lineType = "Item";
+        //     let parms = {};
+        //     parms['lineType'] = lineType;
+        //     if (itemId !== '') {
+        //         parms['itemId'] = itemId;
+        //     }
+        //     if (quantity !== '') {
+        //         parms['Quantity'] = quantity;
+        //     }
+        //     if (itemNo !== '') {
+        //         parms['lineObjectNumber'] = itemNo;
+        //     }
+        //     query = "salesOrders({{request.params.oid}})/salesOrderLines";
+        //     postInfo("ADDORDERLINE", query, JSON.stringify(parms), true);
+        //     $("#itemId").select2("destroy").select2();
+        //     td.lineCount = 1;
+        // });
+
+        $("body").on("click", ".delete", function () {
+            var orderId = $(this).data('orderid');
+            var itemId = $(this).data('itemid');
+            var etagQuery = "salesOrders(" + orderId + ")/salesOrderLines(" + itemId + ")";
+            fetchinfo(etagQuery, false, "ITEMDETAIL", true);
+            delOrderId = itemId;
+        })
+
+        // $('body').on('click', '.bootstrap-autocomplete a', function () {
+        //     $('.bootstrap-autocomplete').hide();
+        // });
+
+        $('#add_order_line').on("hide.bs.modal", function () {
+                $('#add_line').trigger("reset");
+                $('.bootstrap-autocomplete').hide();           
+        });
+
+        $('body').on('click', '#post_order', function(){
+                var deliveryDate = $("#deliveryDate").val();
+                if(deliveryDate !== ''){
+                    $("#post_order span").html('<i class="fa-solid fa-spinner fa-spin-pulse"></i>');
+                    let parms = {};
+                    parms['Ready_to_Post'] = true;
+                    editOrderParms = parms;
+                    query = "UpdateSalesOrderList({{request.params.oid}})";
+                    fetchinfo(query, false, "GETETAG");
+                }else{
+                    $('#date_error_message').modal('show');
+                }
+        });
+
+        td.line = $('#add_order_line_table').DataTable({
+            dom: 'Blfrtip',
+            scrollX: true,
+            pageLength: 10,
+            processing: true,
+            // responsive: true,
+            oSearch: {"bSmart": false},
+            lengthMenu: [
+                [10, 25, 50],
+                [10, 25, 50],
+            ],
+            "columnDefs": [
+                { 
+                    "targets": [0,2,3], 
+                    "searchable": false 
+                }
+            ],
+            buttons: [
+                {
+                    text: 'Save Order Lines', 
+                    className: 'create-order-btn',
+                    action: function ( e, dt, node, config ) {
+                        // $("#add_lines").submit();
+                        var data = td.line.rows().data();
+                        const lineData = {requests: []};
+                        // lineData.push({"requests": ""});
+                        var requests = '';
+                        data.each(function (value, index) {
+                            var qty = td.line.cell(index,3).nodes().to$().find('input').val();
+                            //var itemId = data[index][0];
+                            var itemId = td.line.cell(index,3).nodes().to$().find('input').data('itemid');
+                            var itemName = td.line.cell(index,3).nodes().to$().find('input').data('item');
+                            if(qty > 0){
+                                requests = {
+                                            "method": "POST",
+                                            "url": "salesOrders({{request.params.oid}})/salesOrderLines",
+                                            "headers": {
+                                                "Company": "Polyflor Australia",
+                                                "Content-Type": "application/json"
+                                            },
+                                            "body": {
+                                                "itemId": itemId,
+                                                "lineType": "Item",
+                                                "quantity": parseInt(qty)
+                                            }
+                                        };
+                                lineData['requests'].push(requests);
+                            }
+                            
+                        });
+
+                        var query = '$batch';
+                        postInfo("BATCHJOB", query, JSON.stringify(lineData), false, "PATCH", "", true);
+                    }
+                }
+            ]
+        });
+
+                        
+
+    });
+
+    function getItemEtag(res) {
+        var query = "salesOrderLines(" + delOrderId + ")";
+        var etagd = res['@odata.etag'];
+        etagd = etagd.substring(2);
+        fetchinfo(query, false, "", true, 'DELETE', etagd);
+    }
+
+    function getEtag(res) {
+        var etagn = res['@odata.etag'];
+        // etagn = etagn.substring(2);
+        postInfo("UPDATEORDERLINE", query, JSON.stringify(editOrderParms), false, "PATCH", etagn);
+    }
+
+    function updateOrder(res) {
+        var etagu = res['@odata.etag'];
+        localStorage['orderEtag'] = etagu.substring(2);
+        // $(".order_up_btn").prop('disabled', false);
+        // $(".add-line-btn").prop('disabled', false);
+        $(".order_up_btn span").html('');
+        $("#post_order span").html('');
+        td.post_status = res['Ready_to_Post'];
+        if(res['Ready_to_Post']){
+            $('#post_order').prop('disabled', true);
+            $('#order_up_btn').prop('disabled', true);
+            $('.delete').prop('disabled', true);
+        }else{
+            $('#post_order').prop('disabled', false);
+        }
+    }
+
+    function postUserComment() {
+        var comments = $('#comment').val();
+        if (comments.length > 2) {
+            var currentDate = new Date();
+            currentDate.toISOString();
+            {% if user %}
+            var fullName = "{{ user.fullname }}";
+            {% endif %}
+            var content = JSON.stringify({
+                Document_Type: 'Order',
+                Comment: comments,
+                Document_No: orderNumber,
+                CommentDate: currentDate,
+                Sender: fullName
+            });
+            postInfo("COMMENT", "Portal_UserComments", content);
+        }
+        else
+            return false;
+    }
+
+    function commentAdded(myObj) {
+        try {
+            $(".refresh").addClass('fa-spin');
+            fetchinfo("Portal_UserComments?$filter=Document_Type eq 'Order' and Document_No eq '" + orderNumber + "'&$orderby=CommentDate desc", false, "GETCOMMENT");
+        }
+        catch (err) {
+            showError("Error: " + err.message, false);
+        }
+    }
+
+    function getOrderLine(res) {
+        $("#preloader").show();
+        const tableData = [];
+        var noData = true;
+        td.lineCount = 0;
+        if (res['value'].length > 0) {
+            jQuery.each(res['value'], function (i, val) {
+                if (val['Line_No_']) {
+                    const dt = [val['Type'], val['No_'], val['Description'], val['Quantity'], '<button type="button" data-itemId="' + val['SystemId'] + '" data-orderId="' + val['oid'] + '" class="btn btn-danger delete table-btn" title="Delete"><i class="fa-solid fa-trash-can"></i></button>','<button type="button" id="suggestionBtn_' + val['SystemId'] + '" data-itemId="' + val['SystemId'] + '" class="btn btn-info suggestionButton table-btn" title="Suggestion">Suggestion</button>'];
+                    tableData.push(dt);
+                    noData = false;
+                    td.lineCount = 1;
+                } else {
+                    noData = true;
+                }
+            });
+            td.table.clear().rows.add(tableData).draw();
+            if(td.post_status){
+                $('.delete').prop('disabled', true);
+            }
+        }
+        if (noData) {
+            $(".dataTables_empty").text('No data available');
+        }
+        // fetchinfo("locations", false, "GETDOCNO", true);
+        fetchinfo("Portal_ItemAvailability?$filter=cid eq {{BCCustId}}", false, "GETDOCNO");
+    }
+
+    function getOrder(resonse) {
+        var res = resonse['value'][0];
+        $("#doc_no").val(res['External_Document_No_']);
+        // $("#orderDate").text(res['OrderDate']);
+        $("#ord_numb").text(res['No']);
+
+        td.location = res['Location_Code'];
+        
+        if (res['Requested_Delivery_Date'] !== '') {
+            $("#deliveryDate").val(res['Requested_Delivery_Date']);
+        }
+        if (res['Requested_Delivery_Date'] == '0001-01-01') {
+            $("#deliveryDate").val('');
+        }
+        orderNumber = res['No'];
+        incDocNo = res['Incoming_Document_Entry_No_'];
+        {% if AccountType == "Customer" %}
+        initDocuments(orderNumber);
+        {% endif %}
+        td.location_code = res['Location_Code'];
+        td.post_status = res['Ready_to_Post'];
+        if(res['Ready_to_Post']){
+            $('#post_order').prop('disabled', true);
+            $('#order_up_btn').prop('disabled', true);
+            $('.delete').prop('disabled', true);
+        }else{
+            $('#post_order').prop('disabled', false);
+        }
+        
+        // fetchinfo("Portal_ItemAvailability?$filter=LocationCode eq '"+td.location_code+"' and TotalQuantity gt 0");
+        fetchinfo("Portal_ItemAvailability?$filter=cid eq {{BCCustId}}");
+
+        fetchinfo("Portal_UserComments?$filter=Document_Type eq 'Order' and Document_No eq '" + orderNumber + "'&$orderby=CommentDate desc", false, "GETCOMMENT");
+    }
+    function refreshTableData() {
+        // var queryInfo = "Portal_{{AccountTypeKeyword}}OrderDetail?$filter=cid eq {{BCCustId}} and oid eq {{request.params.oid}}";
+        var queryInfo = "Portal_{{AccountTypeKeyword}}OrderDetail?$filter=oid eq {{request.params.oid}}";
+        fetchinfo(queryInfo, false, "GETORDERLINE");
+        $('#add_order_line').modal('hide');
+    }
+
+    function getComment(myobj) {
+        $('#comment').val("");
+        var txtComment = "";
+        txtComment += "<div class='comment-chat'>"
+        // txtComment += "<tbody style>";
+        var prUser = "{{ username | default: resx['Default_Profile_name'] }}";
+        if (myobj[0]) {
+            for (x in myObj) {
+                if (myObj[x].Document_No == orderNumber) {
+                    var receivedDate = new Date(myObj[x].CommentDate).toDateString();
+                    var Time = new Date(myObj[x].CommentDate).toLocaleTimeString();
+                    if (prUser == myObj[x].Sender) {
+                        txtComment += "<div class='comment-main main-user-class'>\
+    <div data-th='Comment' class='comment-td'>\
+        <div class='comment-tr'>\
+            <h5 data-th='Sender' class='h5'>"+ myObj[x].Sender + "</h5>\
+            <span data-th='Date' class='comment-date'>"+ receivedDate + "</span>\
+        </div>\
+        <p>"+ myObj[x].Comment.replace(/(?:\r\n|\r|\n)/g, "</br>") + "</p>\
+    </div>\
+</div>";
+                    } else {
+                        txtComment += "<div class='comment-main other-user-class'>\
+    <div data-th='Comment' class='comment-td'>\
+        <div class='comment-tr'>\
+            <h5 data-th='Sender' class='h5'>"+ myObj[x].Sender + "</h5>\
+            <span data-th='Date' class='comment-date'>"+ receivedDate + "</span>\
+        </div>\
+        <p>"+ myObj[x].Comment.replace(/(?:\r\n|\r|\n)/g, "</br>") + "</p>\
+    </div>\
+</div>";
+                    }
+
+                    // "<hr class='comment-line'>"
+                }
+            }
+
+            txtComment += "</div>"
+            document.getElementById("CommentsTab").innerHTML = txtComment;
+            $(".refresh").removeClass('fa-spin');
+        }
+        else {
+            document.getElementById("CommentsTab").innerHTML = "No Comments Available";
+        }
+        $(".refresh").removeClass('fa-spin');
+    }
+
+    // function refreshDocuments() {
+    //     var queryOrder = "Portal_SalesOrders?$filter=SystemId  eq {{request.params.oid}}";
+    //     fetchinfo(queryOrder, false, "GETDOCNO");
+    // }
+    // function getDocNo(res) {
+    //     fetchinfo("AttachedDocument?$filter=Incoming_Document_Entry_No  eq " + res['value'][0]['Incoming_Document_Entry_No_'], false, "GETDOCUMENTS");
+    // }
+    function errorMsg(response) {
+        if (response.responseJSON.error.code == 'Application_FieldValidationException') {
+            $('#add_order_line').modal('hide');
+            // swal("Sorry!", "You cant edit released orders.", "error");
+            Swal.fire({
+                // title: "You cannot edit confirmed orders.",
+                // text: "You cant edit released orders!",
+                title: response.responseJSON.error.message,
+                icon: "error",
+                allowOutsideClick: false,
+                confirmButtonText: "Go to orders",
+                showCloseButton: false,
+                showCancelButton: false
+            }).then((result) => {
+                location.replace(location.origin + "/orders");
+            });
+        }
+    }
+
+    function checkItem(arr, LocationCode, ItemNo){
+        var res = 'not matched';
+        for (x in arr){
+            if(arr[x].LocationCode == LocationCode && arr[x].ItemNo == ItemNo){
+                res = x;
+            }
+        };
+        return res;
+     }
+
+     function checkLocation(arr, LocationCode){
+        var res = 'not matched';
+        for (x in arr){
+            if(arr[x].LocationCode == LocationCode){
+                res = x;
+            }
+        };
+        return res;
+     }
+
+    function getDocNo(obj){
+        $("#preloader").show();
+        obj = obj['value'];
+        const holder = [];
+        obj.forEach(element => {
+            if(element.ItemNo != undefined){
+                var obj = {};
+                // obj['LocationCode'] = element.LocationCode;
+                obj['LocationCode'] = element.LocationCode;
+                obj['location_name'] = element.location_name;
+                obj['TotalQuantity'] = element.TotalQuantity;
+                obj['ItemName'] = element.ItemName;
+                obj['itemId'] = element.ItemId;
+                var check = checkArray(holder, element.LocationCode, element.ItemNo);
+                if(check == 'not matched'){
+                    holder.push(obj);
+                }else{
+                    holder[check]['TotalQuantity'] = holder[check]['TotalQuantity'] + d.TotalQuantity;
+                }
+
+            }
+        });
+
+        const locations = [];
+        holder.forEach(element => {
+                var loc = {};
+                // obj['LocationCode'] = element.LocationCode;
+                loc['LocationCode'] = element.LocationCode;
+                loc['location_name'] = element.location_name;
+                loc['TotalQuantity'] = element.TotalQuantity;
+                loc['ItemName'] = element.ItemName;
+                loc['itemId'] = element.ItemId;
+                var check = checkLocation(locations, element.LocationCode);
+                if(check == 'not matched' && element.TotalQuantity > 0){
+                    locations.push(loc);
+                }
+                // else{
+                //     locations[check]['TotalQuantity'] = holder[check]['TotalQuantity'] + d.TotalQuantity;
+                // }
+        });
+
+        var location = '<option value="">Select Warehouse</option>';
+        locations.forEach(element => {
+            var selected = '';
+            if(td.location == element.LocationCode){
+                selected = 'selected = "selected"';
+            }
+            if(element.LocationCode != ''){
+                location += '<option value="'+element.LocationCode+'" '+selected+'>'+element.location_name+'</option>';
+            }
+                
+        });
+        $("#location_code").empty().append(location);
+
+        if(td.lineCount > 0){
+            $("#location_code").prop('disabled', true);
+        }
+        $("#location_code").select2("destroy").select2();
+        $("#preloader").hide();
+    }
+
+    function checkArray(arr, ItemNo){
+        var res = 'not matched';
+        for (x in arr){
+            if(arr[x].ItemNo == ItemNo){
+                res = x;
+            }
+        };
+        return res;
+    }
+
+    function fetchData(obj){
+        // var list_item = '<option>Select Item</option>';
+        const holder = [];
+        obj.forEach(element => {
+            if(element.ItemNo != undefined){
+                var obj = {};
+                // obj['LocationCode'] = element.LocationCode;
+                obj['ItemNo'] = element.ItemNo;
+                obj['itemId'] = element.ItemId;
+                obj['TotalQuantity'] = element.TotalQuantity;
+                // obj['cid'] = element.cid;
+                obj['ItemName'] = element.ItemName;
+                // obj['UOM'] = element.UOM;
+                // obj['Spare_Maker_Name'] = element.Spare_Maker_Name;
+                // obj['Maker_Reference_number'] = element.Maker_Reference_number;
+                // obj['Drawing_No_'] = element.Drawing_No_;
+                // obj['Supplier'] = element.Supplier;
+                // obj['location_name'] = element.location_name;
+                obj['unit_price'] = globalCurr + formatToCurrency(element.unit_price);
+                var check = checkArray(holder, element.ItemNo);
+                if(check == 'not matched'){
+                    holder.push(obj);
+                }else{
+                    holder[check]['TotalQuantity'] = holder[check]['TotalQuantity'] + element.TotalQuantity;
+                }
+
+            }
+                
+        });
+        const tableData = [];
+        holder.forEach(element => {
+            if(element.TotalQuantity > 0){
+                var input = '<input type="number" class="quantity form-control" data-item="'+element.ItemName+'" min="0" max="'+element.TotalQuantity+'" data-itemid="'+element.itemId+'">';
+                const dt = [element.ItemNo, element.ItemName, element.TotalQuantity, input];
+                    tableData.push(dt);
+            }
+                
+
+            // list_item += '<option value="'+element.itemId+'" >'+element.ItemName+'</option>';
+        });
+        td.line.clear().rows.add(tableData).draw();
+        // $("#itemId").empty().append(list_item);
+        // $("#itemId").select2("destroy").select2();
+        $("#preloader").hide();
+    }
+
+    function reloadItems(){
+        fetchinfo("Portal_ItemAvailability?$filter=cid eq {{BCCustId}}");
+        // fetchinfo("Portal_ItemAvailability?$filter=LocationCode eq '"+td.location_code+"' and TotalQuantity gt 0");
+        $('#add_order_line').modal('show');
+    }
+
+    function batchJob(res){
+        refreshTableData();
+        $('#add_order_line').modal('hide');
+    }
+
+    $(document).ready(function(){
+        $('body').on('change', '.quantity', function(){
+            var qty = parseInt($(this).val());
+            var min = parseInt($(this).attr('min'));
+            var max = parseInt($(this).attr('max'));
+            var item = $(this).data('item');
+            if (qty != "" && qty > max || qty < min) {
+                Swal.fire({
+                    title: `Quantity for ${item} should be between ${min} and ${max}`,
+                    icon: "error",
+                    allowOutsideClick: false,
+                    confirmButtonText: "OK",
+                    showCloseButton: true,
+                    showCancelButton: false
+                }).then((result) => {
+                    $(this).val(max);
+                });
+                // alert(`Quantity for ${item} should be between ${min} and ${max}`);
+                
+            }
+            
+        });
+        // $('body').on('keyup', '.quantity', function(){
+        //     var total = 0;
+        //     $('input.quantity').each(function() {
+        //         var num = parseInt(this.value, 10);
+        //         if (num > 0) {
+        //             total += 1;
+        //         }
+        //     });
+        //     if(total > 5){
+        //         Swal.fire({
+        //             title: 'You can add 5 items only.',
+        //             icon: "error",
+        //             allowOutsideClick: false,
+        //             confirmButtonText: "OK",
+        //             showCloseButton: true,
+        //             showCancelButton: false
+        //         }).then((result) => {
+        //             $(this).val('');
+        //         });
+        //     }
+        // });
+    })
+</script>
+<style>
+    #add_order_line .modal-dialog{
+        max-width: 1005px !important;
+    }
+    .dt-buttons {
+        float: right !important;
+        margin-left: 10px;
+        display: flex;
+        gap: 20px
+    }
+
+
+    .container.order-container {
+        width: 100% !important;
+        padding-left: 40px !important;
+    }
+
+    #order_line_table_wrapper .dt-buttons {
+        float: right;
+        position: relative;
+    }
+
+    .bootstrap-autocomplete {
+        display: block;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        background: transparent;
+        bottom: 0;
+        color: transparent;
+        cursor: pointer;
+        height: auto;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: auto;
+    }
+
+    .ui-autocomplete {
+        z-index: 2147483647;
+    }
+</style>

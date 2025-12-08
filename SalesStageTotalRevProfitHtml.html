@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Sales Stage</title>
+    <script>
+        function sendSelection() {
+            var selectedStage = document.getElementById("salesStage").value;
+            var stageLabel = document.getElementById("salesStage").options[document.getElementById("salesStage").selectedIndex].text;
+
+            // Send selected stage data back to the parent Dynamics 365 window
+            window.opener.postMessage({ stage: selectedStage, label: stageLabel }, "*");
+
+            // Close popup after sending data
+            window.close();
+        }
+    </script>
+</head>
+<body>
+    <h3>Select a Sales Stage</h3>
+    <select id="salesStage">
+        <option value="0">Discovery</option>
+        <option value="1">Proposal Submitted</option>
+        <option value="2">Contract Review</option>
+    </select>
+    <button onclick="sendSelection()">Confirm</button>
+</body>
+</html>

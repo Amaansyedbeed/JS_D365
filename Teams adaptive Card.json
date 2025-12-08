@@ -1,0 +1,48 @@
+{
+    "$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
+    "type": "AdaptiveCard",
+    "version": "1.4",
+    "body": [
+        {
+            "type": "TextBlock",
+            "text": "Hello @{outputs('Get_a_row_by_ID_-_Requested_By_2')?['body/firstname']},",
+            "weight": "Bolder",
+            "size": "Medium"
+        },
+        {
+            "type": "TextBlock",
+            "text": "We noticed that your recent case regarding **@{triggerOutputs()?['body/_casetypecode_label']}** (Case #**@{outputs('Get_Resloved_Case_2')?['body/ticketnumber']}**) has been resolved, and we’re eager to get your insights on your experience.",
+            "wrap": true
+        },
+        {
+            "type": "TextBlock",
+            "text": "Your feedback is essential in helping us enhance our internal processes and better support our team. Plus, it only takes a few seconds!",
+            "wrap": true
+        },
+        {
+            "type": "TextBlock",
+            "text": "Would you mind taking a moment to share your experience with us?",
+            "wrap": true
+        },
+        {
+            "type": "ActionSet",
+            "actions": [
+                {
+                    "type": "Action.OpenUrl",
+                    "title": "Take Survey",
+                    "url": "@{outputs('Create_an_invitation_Internal_2')?['body/Invitationlink']}"
+                }
+            ]
+        },
+        {
+            "type": "TextBlock",
+            "text": "Thank you for your cooperation and for helping us improve.",
+            "wrap": true
+        },
+        {
+            "type": "TextBlock",
+            "text": "Best wishes,\n\nAffinity Management Services",
+            "weight": "Bolder"
+        }
+    ]
+}
